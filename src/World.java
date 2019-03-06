@@ -1,5 +1,7 @@
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Random;
+import java.util.List;
 
 public class World extends Observable {
 
@@ -13,6 +15,8 @@ public class World extends Observable {
     private int enemyCount = 10;
 
     private Enemy [] enemies;
+    private List<Command> histories = new ArrayList<Command>();
+    private boolean replayMode = false;
 
     public World(int size) {
         this.size = size;
@@ -34,6 +38,13 @@ public class World extends Observable {
             @Override
             public void run() {
                 while(notOver) {
+                    if(replayMode){
+                        for(Command c : histories){
+                            if(c.getTick() == tick){
+                                c.execute();
+                            }
+                        }
+                    }
                     tick++;
                     player.move();
                     checkCollisions();
@@ -74,20 +85,32 @@ public class World extends Observable {
         return player;
     }
 
+    public void setReplayMode(){
+        this.replayMode = true;
+    }
+
     public void turnPlayerNorth() {
-        player.turnNorth();
+        CommandNorth command = new CommandNorth(tick, player);
+        command.execute();
+        histories.add(command);
     }
 
     public void turnPlayerSouth() {
-        player.turnSouth();
+        CommandSouth command = new CommandSouth(tick, player);
+        command.execute();
+        histories.add(command);
     }
 
     public void turnPlayerWest() {
-        player.turnWest();
+        CommandWest command = new CommandWest(tick, player);
+        command.execute();
+        histories.add(command);
     }
 
     public void turnPlayerEast() {
-        player.turnEast();
+        CommandEast command = new CommandEast(tick, player);
+        command.execute();
+        histories.add(command);
     }
 
     public Enemy[] getEnemies() {
